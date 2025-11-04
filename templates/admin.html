@@ -28,10 +28,8 @@
           <input type="text" name="query" placeholder="Search for users...">
           <button type="submit" class="btn btn-warning">Search</button>
       </form>
-      <form action="/createuser" method="get">
-        
-        <button type="submit" class="btn btn-warning">Create a User</button>
-    </form>
+      <a href="/createuser" class="btn btn-warning mt-2">Create a User</a>
+
       
       </div>
 
@@ -60,11 +58,9 @@
                   <td>{{.CreatedAt}}</td>
                   <td>{{.UpdatedAt}}</td>
                   <td>
-                    <form action="/edituser/{{ .ID }}" method="get">
-
-                      <button type="submit" class="btn btn-warning">Edit</button>
-                     </form>
-                  </td>
+                    <a href="/edituser/{{.ID}}" class="btn btn-warning">Edit</a>
+                </td>
+                
                  
                  <td>
                 <form action="/deleteuser/{{ .ID }}" method="post">

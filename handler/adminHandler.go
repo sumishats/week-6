@@ -18,11 +18,11 @@ type Admin struct {
 
 func Adminlogin(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
-	c.Header("Expires", "0") //does not cache
+	c.Header("Expires", "0") 
 
 	//check if admin already login  or browser cookie jwt token indo enn
 	tokenString, err := c.Cookie("jwt_token")
-	if err == nil && tokenString != "" { //token ind err ileki
+	if err == nil && tokenString != "" { 
 		//validate token
 		claims := Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -36,15 +36,15 @@ func Adminlogin(c *gin.Context) {
 		}
 
 	}
-	//token ileki show adminlogin page
+	
 	c.HTML(200, "adminLogin.html", nil)
 }
 
-// adminloginpost
+
 func AdminLoginPost(c *gin.Context) {
 
 	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
-	c.Header("Expires", "0") //browser page expire immediatly dont see after logout old page
+	c.Header("Expires", "0") 
 
 	email := strings.TrimSpace(c.Request.FormValue("adminEmail"))
 	password := strings.TrimSpace(c.Request.FormValue("adminPassword"))
@@ -90,15 +90,16 @@ func AdminLoginPost(c *gin.Context) {
 
 // adminpage
 func AdminPage(c *gin.Context) {
-	c.Header("Cache-Control", "no-cache,no-store,must-revalidate") //cache zero fresh version kittan
-	c.Header("Expires", "0")                                       //cache pettann zero akunu  admin back adikuna tymil old page kanathirikan
+	c.Header("Cache-Control", "no-cache,no-store,must-revalidate") 
+	c.Header("Expires", "0")                                       
 
 	//get admin information from jwt claims (set by middleware)
 	adminEmail, _ := c.Get("email")
 
-	//user ulla variable create cheyunu bcs admin databse ulla ella user kaanam
+	
+	//fetch all users in db
 	var users []models.User
-	database.Db.Find(&users) //database ulla ella user edukunu
+	database.Db.Find(&users) 
 
 	c.HTML(200, "admin.html", gin.H{ //render admin html page data safely
 		"users":       users,
@@ -118,7 +119,7 @@ func AdminLogout(c *gin.Context) {
 
 // adminsearch func
 func Search(c *gin.Context) {
-	var users []models.User                    //slice of models is users deta from databse
+	var users []models.User                   
 	searchQuery := c.DefaultQuery("query", "") //search text from url query params
 
 	if searchQuery != "" { //email name noki user edukunu
@@ -145,7 +146,7 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	//delete user
-	result := database.Db.Delete(&models.User{}, uint(id)) //user id database column noki delete cheyunu
+	result := database.Db.Delete(&models.User{}, uint(id)) 
 	if result.Error != nil {
 		c.JSON(500, gin.H{"error": "failed to delete user"})
 		return
@@ -156,7 +157,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, "/admin") //303 next page
+	c.Redirect(303, "/admin") 
 }
 
 // edit user

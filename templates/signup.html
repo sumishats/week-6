@@ -17,6 +17,7 @@
     <div class="containerfluid heading1 bg-warning ">
         <h1>Signup</h1>
 
+
     </div>
     <section class="vh-100">
         <div class="container py-5 h-100">
@@ -25,6 +26,11 @@
               <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg" class="img-fluid" alt="Phone image">
             </div>
             <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+
+              {{ if .ErrorMsg }}
+              <p style="color:red; font-weight:bold;">{{ .ErrorMsg }}</p>
+              {{ end }}
+              
               <form action="/signuppost" method="post">
                 <!-- Email input -->
                 <div class="form-outline mb-4">

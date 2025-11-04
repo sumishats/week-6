@@ -14,25 +14,24 @@ import (
 	"gorm.io/gorm"
 )
 
-// gin gorm use chyth oru admin user ulla oru web application ann create chythikune
 func main() {
 	var err error
 
 	dsn := "user=postgres password=sumisha@2006 dbname=users host=localhost port=5432 sslmode=disable"
 
-	database.Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{}) //database gorm use chyth connect chythu
+	database.Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		fmt.Println("failed connect to database", err)
-		os.Exit(1) //enthelum err indeki aa program avde stop cheyan vendi ann os package ulla oru func ann athil zero allath eth num anekilum program stop cheyanam
+		os.Exit(1)
 	}
 
-	database.Db.AutoMigrate(&models.User{}) //table already indeki ok ileki automatic ayitt create  chyum
+	database.Db.AutoMigrate(&models.User{})
 	database.Db.AutoMigrate(&models.Admin{})
 
-	router := gin.Default()                 //gin create 
-	router.LoadHTMLGlob("templates/*.html") //connect html page generate chyth
-	router.Static("/static", "./static")    //static file gin lott aki
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*.html")
+	router.Static("/static", "./static")
 
 	// Public routes (no authentication required)
 	router.GET("/", handler.IndexPage)
@@ -46,8 +45,8 @@ func main() {
 
 	//protected user route with authentication
 	userRoutes := router.Group("/")
-	userRoutes.Use(middleware.JWTAuthMiddleware())  //check jwt token store cookie and token missing ano expire ano  and token ok anekil continue
-	userRoutes.Use(middleware.UserAuthMiddleware()) //check user type is user thane ano noka
+	userRoutes.Use(middleware.JWTAuthMiddleware())
+	userRoutes.Use(middleware.UserAuthMiddleware())
 	{
 		userRoutes.GET("/home", handler.HomeMethod)
 		userRoutes.POST("/logout", handler.Logout)
@@ -61,6 +60,8 @@ func main() {
 		adminRoutes.GET("/admin", handler.AdminPage)
 		adminRoutes.GET("/adminlogout", handler.AdminLogout)
 		adminRoutes.GET("/searchusers", handler.Search)
+		//adminRoutes.GET("/searchusers/:query", handler.Search) -->option
+
 		adminRoutes.POST("/deleteuser/:id", handler.DeleteUser)
 		adminRoutes.GET("/edituser/:id", handler.EditUser)
 		adminRoutes.POST("/updateuser/:id", handler.UpdateUser)

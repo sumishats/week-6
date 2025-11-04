@@ -17,10 +17,10 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func JWTAuthMiddleware() gin.HandlerFunc { //define gin middleware func
-	return func(c *gin.Context) { //token valid continue alleki stop
+func JWTAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 
-		//check token n authorization in header
+		//check token  authorization in header
 		authHeader := c.GetHeader("Authorization")
 
 		var tokenString string
@@ -30,39 +30,41 @@ func JWTAuthMiddleware() gin.HandlerFunc { //define gin middleware func
 		} else {
 			//header token ileki  browser cookie name jwt_token ano nokaa
 			cookie, err := c.Cookie("jwt_token")
-			if err != nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "no token provided"})
+			if err != nil || cookie == "" {
+				c.Redirect(http.StatusSeeOther, "/login")
 				c.Abort()
 				return
+				
 			}
 			tokenString = cookie
 
-		} 
-		//token indeki ath valid ano check chyum
-		// Parse and validate token
+		}
+
+		//token is their validate token
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
 
-		if err != nil || !token.Valid { //token missing ann valid alla indei error
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		if err != nil || !token.Valid { //token missing pass err
+			c.Redirect(http.StatusSeeOther, "/login")
 			c.Abort()
 			return
+		
 		}
 
-		// Set user information in context
+		// Set user information in context  -->get user info
 		c.Set("user_id", claims.UserID)
 		c.Set("email", claims.Email)
 		c.Set("user_type", claims.UserType)
 
-		c.Next() //go to home
+		c.Next() //go to home/next
 
 	}
 }
 
 // UserAuthMiddleware ensures only users can access
-func UserAuthMiddleware() gin.HandlerFunc { //middileware run before main route handler check modify and request
+func UserAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userType, exists := c.Get("user_type")
 		if !exists || userType != "user" {

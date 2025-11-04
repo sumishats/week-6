@@ -25,21 +25,21 @@ type User struct { //store in user details
 }
 
 type Claims struct { //it is used to stored user info and jwt token create
-	UserID             uint   `json:"user_id"`
-	Email              string `json:"email"`
-	UserType           string `json:"user_type"`
-	jwt.StandardClaims        //this is jwt token field expire and user like that
+	UserID   uint   `json:"user_id"`
+	Email    string `json:"email"`
+	UserType string `json:"user_type"`
+	jwt.StandardClaims
 }
 
-var jwtKey = []byte("SecretKey") //it is create secret key in jwt and it is  used to sign and varify token
+var jwtKey = []byte("SecretKey") // create secret key in jwt and it is  used to sign and varify token
 
-// this func plain text password covert to hashed password
+// plain text password covert to hashed password
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-// check password hashes pass plain text match ano noka
+// check password hashes pass plain text match
 func CheckPassword(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err == nil
@@ -73,40 +73,40 @@ func Signup(c *gin.Context) {
 
 // signuppost
 func SignupPost(c *gin.Context) {
-	name := strings.TrimSpace(c.Request.FormValue("name")) //unwanted space oke maaattii
+	name := strings.TrimSpace(c.Request.FormValue("name"))
 	email := strings.TrimSpace(c.Request.FormValue("email"))
 	password := strings.TrimSpace(c.Request.FormValue("password"))
 
-	c.Header("Cache-Control", "no-cache,no-store,must-revalidate") //cache zero aki
+	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
 	c.Header("Expires", "0")
 
 	//validation
 	if name == "" {
-		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"error": "name is required"})
+		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"ErrorMsg": "name is required"})
 		return
 	}
 
 	if email == "" {
-		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"error": "email is required"})
+		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"ErrorMsg": "email is required"})
 		return
 	}
 
 	if password == "" {
-		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"error": "password is required"})
+		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"ErrorMsg": "password is required"})
 		return
 	}
 
 	// Check if user already exists
 	var existingUser models.User
 	if err := database.Db.Where("email = ?", email).First(&existingUser).Error; err == nil {
-		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"error": "User already exists"})
+		c.HTML(http.StatusBadRequest, "signup.html", gin.H{"ErrorMsg": "User already exists"})
 		return
 	}
 
 	// Hash password
 	hashedPassword, err := HashPassword(password)
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"error": "Error processing password"})
+		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"ErrorMsg": "Error processing password"})
 		return
 	}
 
@@ -114,14 +114,14 @@ func SignupPost(c *gin.Context) {
 	user := models.User{Name: name, Email: email, Password: hashedPassword}
 	if database.Db == nil {
 		fmt.Println("Database connection is nil!")
-		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"error": "Database error"})
+		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"ErrorMsg": "Database error"})
 		return
 	}
 
 	result := database.Db.Create(&user)
 	if result.Error != nil {
 		fmt.Println(result.Error)
-		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"error": "Failed to create user"})
+		c.HTML(http.StatusInternalServerError, "signup.html", gin.H{"ErrorMsg": "Failed to create user"})
 		return
 	}
 
@@ -178,7 +178,7 @@ func LoginPost(c *gin.Context) {
 		return
 	}
 
-	//check password hashed ano noka 
+	//check password hashed
 	if !CheckPassword(user.Password, password) {
 		c.HTML(200, "login.html", PageData{PassInvalid: "password is invalid"})
 		return
